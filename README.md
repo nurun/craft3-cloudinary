@@ -1,5 +1,4 @@
-Warning: not in active development. May work for your needs, but has several limitations.
-If anyone cares to take of development, please contact me.
+Forked from https://github.com/timkelty/craft3-cloudinary
 
 Cloudinary for Craft CMS 3
 =======================
@@ -12,7 +11,7 @@ This plugin is an integration of the cloud-based image managment  [cloudinary](h
 3. On top you can see your credentials (Cloud Name, API Key and API Secret). Copy them
 
 ### Install the plugin
-1. `composer require timkelty/craft3-cloudinary`
+1. `composer require mutation/craft3-cloudinary`
 2. Go to your Craft admin panel --> Settings --> Plugins and install the Cloudinary plugin
 
 ### Setup up the volume
