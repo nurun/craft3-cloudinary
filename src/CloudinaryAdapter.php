@@ -8,7 +8,7 @@ namespace craft\cloudinary;
 
 use Exception;
 use Cloudinary as ClDriver;
-use Cloudinary\Api as Api;
+use Cloudinary\Api;
 use Cloudinary\Uploader;
 use League\Flysystem\Config;
 use League\Flysystem\AdapterInterface;
@@ -25,7 +25,7 @@ class CloudinaryAdapter implements AdapterInterface
     protected $api;
 
     /**
-     * Cloudinary does not suppory visibility - all is public
+     * Cloudinary does not support visibility - all is public
      */
     use NotSupportingVisibilityTrait;
 
@@ -33,7 +33,6 @@ class CloudinaryAdapter implements AdapterInterface
      * Constructor
      * Sets configuration, and dependency Cloudinary Api.
      * @param array $options Cloudinary configuration
-     * @param Api $api Cloudinary Api instance
      */
     public function __construct(array $options)
     {
@@ -45,11 +44,9 @@ class CloudinaryAdapter implements AdapterInterface
      * Write a new file.
      * Create temporary stream with content.
      * Pass to writeStream.
-     *
      * @param string $path
      * @param string $contents
      * @param Config $options Config object
-     *
      * @return array|false false on failure file meta data on success
      */
     public function write($path, $contents, Config $options)
@@ -58,17 +55,14 @@ class CloudinaryAdapter implements AdapterInterface
         $tempFile = tmpfile();
         fwrite($tempFile, $contents);
         // 2. Use Cloudinary to send
-        $uploadedMetadata = $this->writeStream($path, $tempFile, $options);
-        return $uploadedMetadata;
+        return $this->writeStream($path, $tempFile, $options);
     }
 
     /**
      * Write a new file using a stream.
-     *
      * @param string $path
      * @param resource $resource
      * @param Config $options Config object
-     *
      * @return array|false false on failure file meta data on success
      */
     public function writeStream($path, $resource, Config $options)
@@ -80,25 +74,21 @@ class CloudinaryAdapter implements AdapterInterface
             $options->get('resource_type') : 'auto';
 
         $resourceMetadata = stream_get_meta_data($resource);
-        $uploadedMetadata = Uploader::upload(
+        return Uploader::upload(
             $resourceMetadata['uri'],
             [
                 'public_id' => $public_id,
                 'resource_type' => $resource_type,
             ]
         );
-
-        return $uploadedMetadata;
     }
 
     /**
      * Update a file.
      * Cloudinary has no specific update method. Overwrite instead.
-     *
      * @param string $path
      * @param string $contents
      * @param Config $options Config object
-     *
      * @return array|false false on failure file meta data on success
      */
     public function update($path, $contents, Config $options)
@@ -109,11 +99,9 @@ class CloudinaryAdapter implements AdapterInterface
     /**
      * Update a file using a stream.
      * Cloudinary has no specific update method. Overwrite instead.
-     *
      * @param string $path
      * @param resource $resource
      * @param Config $options Config object
-     *
      * @return array|false false on failure file meta data on success
      */
     public function updateStream($path, $resource, Config $options)
@@ -124,10 +112,8 @@ class CloudinaryAdapter implements AdapterInterface
     /**
      * Rename a file.
      * Paths without extensions.
-     *
      * @param string $path
      * @param string $newpath
-     *
      * @return bool
      */
     public function rename($path, $newpath)
@@ -156,24 +142,21 @@ class CloudinaryAdapter implements AdapterInterface
     /**
      * Copy a file.
      * Copy content from existing url.
-     *
      * @param string $path
      * @param string $newpath
-     *
      * @return bool
      */
     public function copy($path, $newpath)
     {
+        $newpath = $this->_removeExtension($newpath);
         $url = cloudinary_url_internal($this->_removeExtension($path));
         $result = Uploader::upload($url, ['public_id' => $newpath, 'resource_type' => 'auto']);
-        return is_array($result) ? $result['public_id'] == $newpath : false;
+        return is_array($result) ? $result['public_id'] === $newpath : false;
     }
 
     /**
      * Delete a file.
-     *
      * @param string $path
-     *
      * @return bool
      */
     public function delete($path)
@@ -191,10 +174,9 @@ class CloudinaryAdapter implements AdapterInterface
     /**
      * Delete a directory.
      * Delete Files using directory as a prefix.
-     *
      * @param string $dirname
-     *
      * @return bool
+     * @throws Api\GeneralError
      */
     public function deleteDir($dirname)
     {
@@ -207,10 +189,8 @@ class CloudinaryAdapter implements AdapterInterface
      * Cloudinary does not realy embrace the concept of "directories".
      * Those are more like a part of a name / public_id.
      * Just keep swimming.
-     *
      * @param string $dirname directory name
      * @param Config $options
-     *
      * @return array|false
      */
     public function createDir($dirname, Config $options)
@@ -222,12 +202,9 @@ class CloudinaryAdapter implements AdapterInterface
      * Check whether a file exists.
      * Using url to check response headers.
      * Maybe I should use api resource?
-     *
      * substr(get_headers(cloudinary_url_internal($path))[0], -6 ) == '200 OK';
      * need to test that for spead
-     *
      * @param string $path
-     *
      * @return array|bool|null
      */
     public function has($path)
@@ -245,9 +222,7 @@ class CloudinaryAdapter implements AdapterInterface
 
     /**
      * Read a file.
-     *
      * @param string $path
-     *
      * @return array|false
      */
     public function read($path)
@@ -258,24 +233,21 @@ class CloudinaryAdapter implements AdapterInterface
 
     /**
      * Read a file as a stream.
-     *
      * @param string $path
-     *
      * @return array|false
      */
     public function readStream($path)
     {
-        $stream = fopen(cloudinary_url($this->_removeExtension($path)), 'r');
+        $stream = fopen(cloudinary_url($this->_removeExtension($path)), 'rb');
         return compact('stream', 'path');
     }
 
     /**
      * List contents of a directory.
-     *
      * @param string $directory
-     * @param bool $recursive
-     *
+     * @param bool $hasRecursive
      * @return array
+     * @throws Api\GeneralError
      */
     public function listContents($directory = '', $hasRecursive = false)
     {
@@ -289,7 +261,7 @@ class CloudinaryAdapter implements AdapterInterface
                     'type' => 'upload',
                     'prefix' => $directory,
                     'max_results' => 500,
-                    'next_cursor' => isset($response['next_cursor']) ? $response['next_cursor'] : null,
+                    'next_cursor' => $response['next_cursor'] ?? null,
                 ]
             );
             $resources = array_merge($resources, $response['resources']);
@@ -304,10 +276,9 @@ class CloudinaryAdapter implements AdapterInterface
 
     /**
      * Get all the meta data of a file or directory.
-     *
      * @param string $path
-     *
      * @return array|false
+     * @throws Api\GeneralError
      */
     public function getMetadata($path)
     {
@@ -315,24 +286,10 @@ class CloudinaryAdapter implements AdapterInterface
     }
 
     /**
-     * Get Resource data
-     * @param string $path
-     * @return array
-     */
-    public function getResource($path)
-    {
-        return (array)$this->api->resource(
-            $this->_removeExtension($path),
-            ['resource_type' => $this->_getResourceType($path)]
-        );
-    }
-
-    /**
      * Get all the meta data of a file or directory.
-     *
      * @param string $path
-     *
      * @return array|false
+     * @throws Api\GeneralError
      */
     public function getSize($path)
     {
@@ -344,10 +301,9 @@ class CloudinaryAdapter implements AdapterInterface
      * Actually I don't think cloudinary supports mimetypes.
      * Or I am just stupid and cannot find it.
      * This is an ugly hack.
-     *
      * @param string $path
-     *
      * @return array|false
+     * @throws Api\GeneralError
      */
     public function getMimetype($path)
     {
@@ -356,14 +312,27 @@ class CloudinaryAdapter implements AdapterInterface
 
     /**
      * Get the timestamp of a file.
-     *
      * @param string $path
-     *
      * @return array|false
+     * @throws Api\GeneralError
      */
     public function getTimestamp($path)
     {
         return $this->prepareTimestamp($this->getResource($path));
+    }
+
+    /**
+     * Get Resource data
+     * @param string $path
+     * @return array
+     * @throws Api\GeneralError
+     */
+    protected function getResource($path)
+    {
+        return (array)$this->api->resource(
+            $this->_removeExtension($path),
+            ['resource_type' => $this->_getResourceType($path)]
+        );
     }
 
     /**
