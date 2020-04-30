@@ -1,4 +1,5 @@
 <?php
+
 namespace craft\cloudinary;
 
 use Craft;
@@ -8,7 +9,7 @@ use craft\base\FlysystemVolume;
  * Class Volume
  *
  * @property null|string $settingsHtml
- * @property string      $rootUrl
+ * @property string $rootUrl
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since  3.0
@@ -85,9 +86,12 @@ class Volume extends FlysystemVolume
      */
     public function getSettingsHtml()
     {
-        return Craft::$app->getView()->renderTemplate('cloudinary/volumeSettings', [
-            'volume' => $this
-        ]);
+        return Craft::$app->getView()->renderTemplate(
+            'cloudinary/volumeSettings',
+            [
+                'volume' => $this
+            ]
+        );
     }
 
     /**
@@ -95,7 +99,11 @@ class Volume extends FlysystemVolume
      */
     public function getRootUrl()
     {
-        return rtrim(rtrim($this->url, '/').'/'.$this->subfolder, '/').'/';
+        if (!$this->hasUrls) {
+            return false;
+        }
+
+        return rtrim(rtrim(Craft::parseEnv($this->url), '/') . '/' . $this->subfolder, '/') . '/';
     }
 
     // Protected Methods
