@@ -3,8 +3,7 @@ namespace craft\cloudinary;
 
 use Craft;
 use craft\base\FlysystemVolume;
-use Enl\Flysystem\Cloudinary\ApiFacade as CloudinaryClient;
-use Enl\Flysystem\Cloudinary\CloudinaryAdapter;
+use CarlosOCarvalho\Flysystem\Cloudinary\CloudinaryAdapter;
 
 /**
  * Class Volume
@@ -55,11 +54,6 @@ class Volume extends FlysystemVolume
      * @var string Cloudinary cloud name to use
      */
     public $cloudName = '';
-
-    /**
-     * @var bool Overwrite existing files on Cloudinary
-     */
-    public $overwrite = true;
 
     // Public Methods
     // =========================================================================
@@ -192,19 +186,13 @@ class Volume extends FlysystemVolume
      */
     protected function createAdapter(): CloudinaryAdapter
     {
-        $client = static::client([
-            'cloud_name' => $this->cloudName,
+        $config = [
             'api_key' => $this->apiKey,
             'api_secret' => $this->apiSecret,
-            'overwrite' => $this->overwrite,
-        ]);
+            'cloud_name' => $this->cloudName,
+        ];
 
-        return new CloudinaryAdapter($client);
-    }
-
-    protected static function client(array $config = []): CloudinaryClient
-    {
-        return new CloudinaryClient($config);
+        return new CloudinaryAdapter($config);
     }
 
     // Private Methods
