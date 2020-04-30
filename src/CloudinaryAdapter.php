@@ -144,7 +144,11 @@ class CloudinaryAdapter implements AdapterInterface
         } else {
             $newPathRemote = $newPathInfo['filename'];
         }
-        $result = Uploader::rename($pathRemote, $newPathRemote);
+        $result = Uploader::rename(
+            $pathRemote,
+            $newPathRemote,
+            ['resource_type' => $this->_getResourceType($path)]
+        );
         return $result['public_id'] == $newPathInfo['filename'];
     }
 
@@ -160,7 +164,7 @@ class CloudinaryAdapter implements AdapterInterface
     public function copy($path, $newpath)
     {
         $url = cloudinary_url_internal($this->_removeExtension($path));
-        $result = Uploader::upload($url, ['public_id' => $newpath]);
+        $result = Uploader::upload($url, ['public_id' => $newpath, 'resource_type' => 'auto']);
         return is_array($result) ? $result['public_id'] == $newpath : false;
     }
 
@@ -173,7 +177,13 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function delete($path)
     {
-        $result = Uploader::destroy($this->_removeExtension($path), ['invalidate' => true]);
+        $result = Uploader::destroy(
+            $this->_removeExtension($path),
+            [
+                'invalidate' => true,
+                'resource_type' => $this->_getResourceType($path)
+            ]
+        );
         return is_array($result) ? $result['result'] === 'ok' : false;
     }
 
