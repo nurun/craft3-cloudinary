@@ -74,7 +74,7 @@ class CloudinaryAdapter implements AdapterInterface
     public function writeStream($path, $resource, Config $options)
     {
         $public_id = $options->has('public_id') ?
-            $options->get('public_id') : $path;
+            $options->get('public_id') : $this->_removeExtension($path);
 
         $resource_type = $options->has('resource_type') ?
             $options->get('resource_type') : 'auto';
@@ -132,7 +132,7 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function rename($path, $newpath)
     {
-        $pathInfo = pathinfo($path);
+        $pathInfo = pathinfo($this->_removeExtension($path));
         if ($pathInfo['dirname'] !== '.') {
             $pathRemote = $pathInfo['dirname'] . '/' . $pathInfo['filename'];
         } else {
@@ -159,7 +159,7 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function copy($path, $newpath)
     {
-        $url = cloudinary_url_internal($path);
+        $url = cloudinary_url_internal($this->_removeExtension($path));
         $result = Uploader::upload($url, ['public_id' => $newpath]);
         return is_array($result) ? $result['public_id'] == $newpath : false;
     }
@@ -173,7 +173,7 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function delete($path)
     {
-        $result = Uploader::destroy($path, ['invalidate' => true]);
+        $result = Uploader::destroy($this->_removeExtension($path), ['invalidate' => true]);
         return is_array($result) ? $result['result'] === 'ok' : false;
     }
 
@@ -222,7 +222,10 @@ class CloudinaryAdapter implements AdapterInterface
     public function has($path)
     {
         try {
-            $this->api->resource($path, ['resource_type' => $this->_getResourceType($path)]);
+            $this->api->resource(
+                $this->_removeExtension($path),
+                ['resource_type' => $this->_getResourceType($path)]
+            );
         } catch (Exception $e) {
             return false;
         }
@@ -238,7 +241,7 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function read($path)
     {
-        $contents = file_get_contents(cloudinary_url($path));
+        $contents = file_get_contents(cloudinary_url($this->_removeExtension($path)));
         return compact('contents', 'path');
     }
 
@@ -251,7 +254,7 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function readStream($path)
     {
-        $stream = fopen(cloudinary_url($path), 'r');
+        $stream = fopen(cloudinary_url($this->_removeExtension($path)), 'r');
         return compact('stream', 'path');
     }
 
@@ -307,7 +310,10 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function getResource($path)
     {
-        return (array)$this->api->resource($path, ['resource_type' => $this->_getResourceType($path)]);
+        return (array)$this->api->resource(
+            $this->_removeExtension($path),
+            ['resource_type' => $this->_getResourceType($path)]
+        );
     }
 
     /**
@@ -412,5 +418,15 @@ class CloudinaryAdapter implements AdapterInterface
             return 'image';
         }
         return 'raw';
+    }
+
+    private function _removeExtension(string $path)
+    {
+        $pathInfo = pathinfo($path);
+
+        return implode('/', [
+            $pathInfo['dirname'],
+            $pathInfo['filename'],
+        ]);
     }
 }
