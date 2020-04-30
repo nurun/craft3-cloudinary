@@ -192,9 +192,9 @@ class Volume extends FlysystemVolume
     protected function createAdapter(): CloudinaryAdapter
     {
         $config = [
-            'api_key' => $this->apiKey,
-            'api_secret' => $this->apiSecret,
-            'cloud_name' => $this->cloudName,
+            'api_key' => Craft::parseEnv($this->apiKey),
+            'api_secret' => Craft::parseEnv($this->apiSecret),
+            'cloud_name' => Craft::parseEnv($this->cloudName),
         ];
 
         return new CloudinaryAdapter($config);

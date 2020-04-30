@@ -1,27 +1,30 @@
 {% import "_includes/forms" as forms %}
 
-{{ forms.textField({
+{{ forms.autosuggestField({
     label: "API Key"|t('cloudinary'),
     id: 'apiKey',
     name: 'apiKey',
+    suggestEnvVars: true,
     value: volume.apiKey,
     errors: volume.getErrors('apiKey'),
     required: true
 }) }}
 
-{{ forms.textField({
+{{ forms.autosuggestField({
     label: "API Secret"|t('cloudinary'),
     id: 'apiSecret',
     name: 'apiSecret',
+    suggestEnvVars: true,
     value: volume.apiSecret,
     errors: volume.getErrors('apiSecret'),
     required: true
 }) }}
 
-{{ forms.textField({
+{{ forms.autosuggestField({
     label: "Cloud Name"|t('cloudinary'),
     id: 'cloudName',
     name: 'cloudName',
+    suggestEnvVars: true,
     value: volume.cloudName,
     errors: volume.getErrors('cloudName'),
     required: true
