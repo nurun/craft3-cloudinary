@@ -3,7 +3,6 @@ namespace craft\cloudinary;
 
 use Craft;
 use craft\base\FlysystemVolume;
-use CarlosOCarvalho\Flysystem\Cloudinary\CloudinaryAdapter;
 
 /**
  * Class Volume
@@ -60,95 +59,13 @@ class Volume extends FlysystemVolume
      */
     public $overwrite = true;
 
+    /**
+     * @var bool Whether the Flysystem adapter expects folder names to have trailing slashes
+     */
+    protected $foldersHaveTrailingSlashes = false;
+
     // Public Methods
     // =========================================================================
-
-    public function getFileMetadata(string $uri): array
-    {
-        return parent::getFileMetadata($this->_removeExtension($uri));
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function createFileByStream(string $path, $stream, array $config)
-    {
-        parent::createFileByStream($this->_removeExtension($path), $stream, $config);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function updateFileByStream(string $path, $stream, array $config)
-    {
-        parent::updateFileByStream($this->_removeExtension($path), $stream, $config);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function createDir(string $path)
-    {
-        parent::createDir($this->_removeExtension($path));
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function fileExists(string $path): bool
-    {
-        return parent::fileExists($this->_removeExtension($path));
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function folderExists(string $path): bool
-    {
-        return parent::folderExists($this->_removeExtension($path));
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function renameFile(string $path, string $newPath)
-    {
-        parent::renameFile($this->_removeExtension($path), $this->_removeExtension($newPath));
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function deleteFile(string $path)
-    {
-        parent::deleteFile($this->_removeExtension($path));
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function copyFile(string $path, string $newPath)
-    {
-        parent::copyFile($this->_removeExtension($path), $this->_removeExtension($newPath));
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getFileStream(string $uriPath)
-    {
-        return parent::getFileStream($this->_removeExtension($uriPath));
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function init()
-    {
-        parent::init();
-
-        $this->foldersHaveTrailingSlashes = false;
-    }
 
     /**
      * @inheritdoc
@@ -198,18 +115,5 @@ class Volume extends FlysystemVolume
         ];
 
         return new CloudinaryAdapter($config);
-    }
-
-    // Private Methods
-    // =========================================================================
-
-    private function _removeExtension(string $path)
-    {
-        $pathInfo = pathinfo($path);
-
-        return implode('/', [
-            $pathInfo['dirname'],
-            $pathInfo['filename'],
-        ]);
     }
 }
