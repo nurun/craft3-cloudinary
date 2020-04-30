@@ -407,15 +407,12 @@ class CloudinaryAdapter implements AdapterInterface
 
     private function _getResourceType($path)
     {
-        $pathinfo = pathinfo($path);
-        $filename = $pathinfo['filename'] . '.' . $pathinfo['extension'];
-        $mimetype = mime_content_type($filename);
-        $type = explode('/', $mimetype, 2)[0];
-        if ($type === 'video') {
-            return 'video';
-        }
-        if ($type === 'image') {
+        $ext = pathinfo($path, PATHINFO_EXTENSION);
+        if (in_array($ext, $this->_getSupportedImageExtensions(), true)) {
             return 'image';
+        }
+        if (in_array($ext, $this->_getSupportedVideoExtensions(), true)) {
+            return 'video';
         }
         return 'raw';
     }
@@ -424,9 +421,75 @@ class CloudinaryAdapter implements AdapterInterface
     {
         $pathInfo = pathinfo($path);
 
-        return implode('/', [
-            $pathInfo['dirname'],
-            $pathInfo['filename'],
-        ]);
+        return implode(
+            '/',
+            [
+                $pathInfo['dirname'],
+                $pathInfo['filename'],
+            ]
+        );
+    }
+
+    private function _getSupportedImageExtensions()
+    {
+        return [
+            "ai",
+            "gif",
+            "webp",
+            "bmp",
+            "djvu",
+            "ps",
+            "ept",
+            "eps",
+            "eps3",
+            "fbx",
+            "flif",
+            "gif",
+            "gltf",
+            "heif",
+            "heic",
+            "ico",
+            "indd",
+            "jpg",
+            "jpe",
+            "jpeg",
+            "jp2",
+            "wdp",
+            "jxr",
+            "hdp",
+            "pdf",
+            "png",
+            "psd",
+            "arw",
+            "cr2",
+            "svg",
+            "tga",
+            "tif",
+            "tiff",
+            "webp"
+        ];
+    }
+
+    private function _getSupportedVideoExtensions()
+    {
+        return [
+            "3g2",
+            "3gp",
+            "avi",
+            "flv",
+            "m3u8",
+            "ts",
+            "m2ts",
+            "mts",
+            "mov",
+            "mkv",
+            "mp4",
+            "mpeg",
+            "mpd",
+            "mxf",
+            "ogv",
+            "webm",
+            "wmv"
+        ];
     }
 }
