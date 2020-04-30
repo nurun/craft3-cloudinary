@@ -55,6 +55,11 @@ class Volume extends FlysystemVolume
      */
     public $cloudName = '';
 
+    /**
+     * @var bool Overwrite existing files on Cloudinary
+     */
+    public $overwrite = true;
+
     // Public Methods
     // =========================================================================
 
