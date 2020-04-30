@@ -138,7 +138,7 @@ class CloudinaryAdapter implements AdapterInterface
         } else {
             $pathRemote = $pathInfo['filename'];
         }
-        $newPathInfo = pathinfo($newpath);
+        $newPathInfo = pathinfo($this->_removeExtension($newpath));
         if ($newPathInfo['dirname'] !== '.') {
             $newPathRemote = $newPathInfo['dirname'] . '/' . $newPathInfo['filename'];
         } else {
