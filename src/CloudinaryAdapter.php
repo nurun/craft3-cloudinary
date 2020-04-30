@@ -132,13 +132,13 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function rename($path, $newpath)
     {
-        $pathInfo = pathinfo($this->_removeExtension($path));
+        $pathInfo = pathinfo($path);
         if ($pathInfo['dirname'] !== '.') {
             $pathRemote = $pathInfo['dirname'] . '/' . $pathInfo['filename'];
         } else {
             $pathRemote = $pathInfo['filename'];
         }
-        $newPathInfo = pathinfo($this->_removeExtension($newpath));
+        $newPathInfo = pathinfo($newpath);
         if ($newPathInfo['dirname'] !== '.') {
             $newPathRemote = $newPathInfo['dirname'] . '/' . $newPathInfo['filename'];
         } else {
@@ -149,7 +149,8 @@ class CloudinaryAdapter implements AdapterInterface
             $newPathRemote,
             ['resource_type' => $this->_getResourceType($path)]
         );
-        return $result['public_id'] == $newPathInfo['filename'];
+        $result_filename = pathinfo($result['public_id'], PATHINFO_FILENAME);
+        return $result_filename === $newPathInfo['filename'];
     }
 
     /**
