@@ -34,11 +34,6 @@ class Volume extends FlysystemVolume
     // =========================================================================
 
     /**
-     * @var bool Whether this is a local source or not. Defaults to false.
-     */
-    protected $isSourceLocal = false;
-
-    /**
      * @var string Path to the root of this sources local folder.
      */
     public $subfolder = '';
@@ -57,11 +52,6 @@ class Volume extends FlysystemVolume
      * @var string Cloudinary cloud name to use
      */
     public $cloudName = '';
-
-    /**
-     * @var bool Overwrite existing files on Cloudinary
-     */
-    public $overwrite = true;
 
     /**
      * @var bool Whether the Flysystem adapter expects folder names to have trailing slashes

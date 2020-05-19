@@ -72,7 +72,7 @@ class CloudinaryAdapter implements AdapterInterface
     public function writeStream($path, $resource, Config $options)
     {
         $public_id = $options->has('public_id') ?
-            $options->get('public_id') : $this->_removeExtension($path);
+            $options->get('public_id') : $this->removeExtension($path);
 
         $resourceMetadata = stream_get_meta_data($resource);
         return Uploader::upload(
@@ -138,7 +138,7 @@ class CloudinaryAdapter implements AdapterInterface
             $pathRemote,
             $newPathRemote,
             [
-                'resource_type' => $this->_getResourceType($path),
+                'resource_type' => $this->getResourceType($path),
                 'overwrite' => true,
                 'invalidate' => true
             ]
@@ -156,9 +156,9 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function copy($path, $newpath)
     {
-        $newpath = $this->_removeExtension($newpath);
+        $newpath = $this->removeExtension($newpath);
         $result = Uploader::upload(
-            $this->_getUrl($path),
+            $this->getUrl($path),
             [
                 'public_id' => $newpath,
                 'resource_type' => 'auto',
@@ -178,9 +178,9 @@ class CloudinaryAdapter implements AdapterInterface
     public function delete($path)
     {
         $result = Uploader::destroy(
-            $this->_removeExtension($path),
+            $this->removeExtension($path),
             [
-                'resource_type' => $this->_getResourceType($path),
+                'resource_type' => $this->getResourceType($path),
                 'invalidate' => true
             ]
         );
@@ -222,7 +222,7 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function has($path)
     {
-        return substr(get_headers($this->_getUrl($path))[0], -6) === '200 OK';
+        return substr(get_headers($this->getUrl($path))[0], -6) === '200 OK';
     }
 
     /**
@@ -232,7 +232,7 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function read($path)
     {
-        $contents = file_get_contents($this->_getUrl($path));
+        $contents = file_get_contents($this->getUrl($path));
         return compact('contents', 'path');
     }
 
@@ -243,7 +243,7 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function readStream($path)
     {
-        $stream = fopen($this->_getUrl($path), 'rb');
+        $stream = fopen($this->getUrl($path), 'rb');
         return compact('stream', 'path');
     }
 
@@ -335,8 +335,8 @@ class CloudinaryAdapter implements AdapterInterface
     protected function getResource($path)
     {
         return (array)$this->api->resource(
-            $this->_removeExtension($path),
-            ['resource_type' => $this->_getResourceType($path)]
+            $this->removeExtension($path),
+            ['resource_type' => $this->getResourceType($path)]
         );
     }
 
@@ -394,13 +394,10 @@ class CloudinaryAdapter implements AdapterInterface
      * @param $path
      * @return mixed|string
      */
-    private function _getUrl($path)
+    private function getUrl($path)
     {
         try {
-            $result = $this->api->resource(
-                $this->_removeExtension($path),
-                ['resource_type' => $this->_getResourceType($path)]
-            );
+            $result = $this->getResource($path);
             return $result['secure_url'];
         } catch (Exception $e) {
             return '';
@@ -411,13 +408,13 @@ class CloudinaryAdapter implements AdapterInterface
      * @param $path
      * @return string
      */
-    private function _getResourceType($path)
+    private function getResourceType($path)
     {
         $ext = pathinfo($path, PATHINFO_EXTENSION);
-        if (in_array($ext, $this->_getSupportedImageExtensions(), true)) {
+        if (in_array($ext, $this->getSupportedImageExtensions(), true)) {
             return self::TYPE_IMAGE;
         }
-        if (in_array($ext, $this->_getSupportedVideoExtensions(), true)) {
+        if (in_array($ext, $this->getSupportedVideoExtensions(), true)) {
             return self::TYPE_VIDEO;
         }
         return self::TYPE_RAW;
@@ -427,9 +424,9 @@ class CloudinaryAdapter implements AdapterInterface
      * @param string $path
      * @return mixed|string
      */
-    private function _removeExtension(string $path)
+    private function removeExtension(string $path)
     {
-        $type = $this->_getResourceType($path);
+        $type = $this->getResourceType($path);
 
         if ($type === self::TYPE_RAW) {
             return $path;
@@ -451,7 +448,7 @@ class CloudinaryAdapter implements AdapterInterface
     /**
      * @return string[]
      */
-    private function _getSupportedImageExtensions()
+    private function getSupportedImageExtensions()
     {
         return [
             "ai",
@@ -494,7 +491,7 @@ class CloudinaryAdapter implements AdapterInterface
     /**
      * @return string[]
      */
-    private function _getSupportedVideoExtensions()
+    private function getSupportedVideoExtensions()
     {
         return [
             "3g2",
