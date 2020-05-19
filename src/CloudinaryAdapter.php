@@ -29,6 +29,10 @@ class CloudinaryAdapter implements AdapterInterface
      */
     use NotSupportingVisibilityTrait;
 
+    public const TYPE_IMAGE = 'image';
+    public const TYPE_VIDEO = 'video';
+    public const TYPE_RAW = 'raw';
+
     /**
      * Constructor
      * Sets configuration, and dependency Cloudinary Api.
@@ -389,25 +393,33 @@ class CloudinaryAdapter implements AdapterInterface
     {
         $ext = pathinfo($path, PATHINFO_EXTENSION);
         if (in_array($ext, $this->_getSupportedImageExtensions(), true)) {
-            return 'image';
+            return self::TYPE_IMAGE;
         }
         if (in_array($ext, $this->_getSupportedVideoExtensions(), true)) {
-            return 'video';
+            return self::TYPE_VIDEO;
         }
-        return 'raw';
+        return self::TYPE_RAW;
     }
 
     private function _removeExtension(string $path)
     {
+        $type = $this->_getResourceType($path);
+
+        if ($type === self::TYPE_RAW) {
+            return $path;
+        }
+
         $pathInfo = pathinfo($path);
 
-        return implode(
-            '/',
-            [
-                $pathInfo['dirname'],
-                $pathInfo['filename'],
-            ]
-        );
+        return $pathInfo['dirname'] !== '.'
+            ? implode(
+                '/',
+                [
+                    $pathInfo['dirname'],
+                    $pathInfo['filename'],
+                ]
+            )
+            : $pathInfo['filename'];
     }
 
     private function _getSupportedImageExtensions()
