@@ -54,6 +54,11 @@ class Volume extends FlysystemVolume
     public $cloudName = '';
 
     /**
+     * @var bool Overwrite existing files on Cloudinary
+     */
+    public $overwrite = true;
+
+    /**
      * @var bool Whether the Flysystem adapter expects folder names to have trailing slashes
      */
     protected $foldersHaveTrailingSlashes = false;
