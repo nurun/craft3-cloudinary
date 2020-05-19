@@ -74,15 +74,15 @@ class CloudinaryAdapter implements AdapterInterface
         $public_id = $options->has('public_id') ?
             $options->get('public_id') : $this->_removeExtension($path);
 
-        $resource_type = $options->has('resource_type') ?
-            $options->get('resource_type') : 'auto';
-
         $resourceMetadata = stream_get_meta_data($resource);
         return Uploader::upload(
             $resourceMetadata['uri'],
             [
                 'public_id' => $public_id,
-                'resource_type' => $resource_type,
+                'resource_type' => 'auto',
+                'unique_filename' => false,
+                'overwrite' => true,
+                'invalidate' => true
             ]
         );
     }
@@ -137,7 +137,11 @@ class CloudinaryAdapter implements AdapterInterface
         $result = Uploader::rename(
             $pathRemote,
             $newPathRemote,
-            ['resource_type' => $this->_getResourceType($path)]
+            [
+                'resource_type' => $this->_getResourceType($path),
+                'overwrite' => true,
+                'invalidate' => true
+            ]
         );
         $result_filename = pathinfo($result['public_id'], PATHINFO_FILENAME);
         return $result_filename === $newPathInfo['filename'];
@@ -153,8 +157,16 @@ class CloudinaryAdapter implements AdapterInterface
     public function copy($path, $newpath)
     {
         $newpath = $this->_removeExtension($newpath);
-        $url = cloudinary_url_internal($this->_removeExtension($path));
-        $result = Uploader::upload($url, ['public_id' => $newpath, 'resource_type' => 'auto']);
+        $result = Uploader::upload(
+            $this->_getUrl($path),
+            [
+                'public_id' => $newpath,
+                'resource_type' => 'auto',
+                'unique_filename' => false,
+                'overwrite' => true,
+                'invalidate' => true
+            ]
+        );
         return is_array($result) ? $result['public_id'] === $newpath : false;
     }
 
@@ -168,8 +180,8 @@ class CloudinaryAdapter implements AdapterInterface
         $result = Uploader::destroy(
             $this->_removeExtension($path),
             [
-                'invalidate' => true,
-                'resource_type' => $this->_getResourceType($path)
+                'resource_type' => $this->_getResourceType($path),
+                'invalidate' => true
             ]
         );
         return is_array($result) ? $result['result'] === 'ok' : false;
@@ -205,23 +217,12 @@ class CloudinaryAdapter implements AdapterInterface
     /**
      * Check whether a file exists.
      * Using url to check response headers.
-     * Maybe I should use api resource?
-     * substr(get_headers(cloudinary_url_internal($path))[0], -6 ) == '200 OK';
-     * need to test that for spead
      * @param string $path
      * @return array|bool|null
      */
     public function has($path)
     {
-        try {
-            $this->api->resource(
-                $this->_removeExtension($path),
-                ['resource_type' => $this->_getResourceType($path)]
-            );
-        } catch (Exception $e) {
-            return false;
-        }
-        return true;
+        return substr(get_headers($this->_getUrl($path))[0], -6) === '200 OK';
     }
 
     /**
@@ -231,7 +232,7 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function read($path)
     {
-        $contents = file_get_contents(cloudinary_url($this->_removeExtension($path)));
+        $contents = file_get_contents($this->_getUrl($path));
         return compact('contents', 'path');
     }
 
@@ -242,7 +243,7 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function readStream($path)
     {
-        $stream = fopen(cloudinary_url($this->_removeExtension($path)), 'rb');
+        $stream = fopen($this->_getUrl($path), 'rb');
         return compact('stream', 'path');
     }
 
@@ -389,6 +390,27 @@ class CloudinaryAdapter implements AdapterInterface
         return compact('size');
     }
 
+    /**
+     * @param $path
+     * @return mixed|string
+     */
+    private function _getUrl($path)
+    {
+        try {
+            $result = $this->api->resource(
+                $this->_removeExtension($path),
+                ['resource_type' => $this->_getResourceType($path)]
+            );
+            return $result['secure_url'];
+        } catch (Exception $e) {
+            return '';
+        }
+    }
+
+    /**
+     * @param $path
+     * @return string
+     */
     private function _getResourceType($path)
     {
         $ext = pathinfo($path, PATHINFO_EXTENSION);
@@ -401,6 +423,10 @@ class CloudinaryAdapter implements AdapterInterface
         return self::TYPE_RAW;
     }
 
+    /**
+     * @param string $path
+     * @return mixed|string
+     */
     private function _removeExtension(string $path)
     {
         $type = $this->_getResourceType($path);
@@ -422,6 +448,9 @@ class CloudinaryAdapter implements AdapterInterface
             : $pathInfo['filename'];
     }
 
+    /**
+     * @return string[]
+     */
     private function _getSupportedImageExtensions()
     {
         return [
@@ -462,6 +491,9 @@ class CloudinaryAdapter implements AdapterInterface
         ];
     }
 
+    /**
+     * @return string[]
+     */
     private function _getSupportedVideoExtensions()
     {
         return [

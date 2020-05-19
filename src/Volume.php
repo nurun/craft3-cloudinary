@@ -4,6 +4,9 @@ namespace craft\cloudinary;
 
 use Craft;
 use craft\base\FlysystemVolume;
+use craft\errors\VolumeException;
+use craft\errors\VolumeObjectExistsException;
+use League\Flysystem\FileExistsException;
 
 /**
  * Class Volume
@@ -67,6 +70,24 @@ class Volume extends FlysystemVolume
 
     // Public Methods
     // =========================================================================
+
+    /**
+     * @inheritdoc
+     */
+    public function createFileByStream(string $path, $stream, array $config)
+    {
+        try {
+            $config = $this->addFileMetadataToConfig($config);
+            // Disable asserts to always overwrite files
+            $success = $this->filesystem(['disable_asserts' => true])->writeStream($path, $stream, $config);
+        } catch (FileExistsException $e) {
+            throw new VolumeObjectExistsException($e->getMessage(), 0, $e);
+        }
+
+        if (!$success) {
+            throw new VolumeException('Couldn’t create file at ' . $path);
+        }
+    }
 
     /**
      * @inheritdoc
