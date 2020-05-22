@@ -222,7 +222,11 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function has($path)
     {
-        return substr(get_headers($this->getUrl($path))[0], -6) === '200 OK';
+        $url = $this->getUrl($path);
+        if (empty($url)) {
+            return false;
+        }
+        return substr(get_headers($url)[0], -6) === '200 OK';
     }
 
     /**
@@ -232,7 +236,11 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function read($path)
     {
-        $contents = file_get_contents($this->getUrl($path));
+        $url = $this->getUrl($path);
+        if (empty($url)) {
+            return false;
+        }
+        $contents = file_get_contents($url);
         return compact('contents', 'path');
     }
 
@@ -243,6 +251,10 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function readStream($path)
     {
+        $url = $this->getUrl($path);
+        if (empty($url)) {
+            return false;
+        }
         $stream = fopen($this->getUrl($path), 'rb');
         return compact('stream', 'path');
     }
