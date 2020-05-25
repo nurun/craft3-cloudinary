@@ -1,4 +1,4 @@
-Forked from https://github.com/timkelty/craft3-cloudinary
+Forked from https://github.com/MutationDigitale/craft3-cloudinary
 
 Cloudinary for Craft CMS 3
 =======================
