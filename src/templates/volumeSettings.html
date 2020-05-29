@@ -29,3 +29,13 @@
     errors: volume.getErrors('cloudName'),
     required: true
 }) }}
+
+{{ forms.autosuggestField({
+    label: "Base path"|t('cloudinary'),
+    id: 'basePath',
+    name: 'basePath',
+    suggestEnvVars: true,
+    value: volume.basePath,
+    errors: volume.getErrors('basePath'),
+    required: true
+}) }}

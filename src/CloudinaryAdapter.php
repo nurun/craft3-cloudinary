@@ -25,6 +25,11 @@ class CloudinaryAdapter implements AdapterInterface
     protected $api;
 
     /**
+     * @var string
+     */
+    private $basePath;
+
+    /**
      * Cloudinary does not support visibility - all is public
      */
     use NotSupportingVisibilityTrait;
@@ -37,11 +42,13 @@ class CloudinaryAdapter implements AdapterInterface
      * Constructor
      * Sets configuration, and dependency Cloudinary Api.
      * @param array $options Cloudinary configuration
+     * @param string $basePath
      */
-    public function __construct(array $options)
+    public function __construct(array $options, $basePath = '')
     {
         ClDriver::config($options);
         $this->api = new Api;
+        $this->basePath = $basePath;
     }
 
     /**
@@ -71,6 +78,7 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function writeStream($path, $resource, Config $options)
     {
+        $this->prefixPath($path);
         $public_id = $options->has('public_id') ?
             $options->get('public_id') : $this->removeExtension($path);
 
@@ -122,6 +130,8 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function rename($path, $newpath)
     {
+        $this->prefixPath($path);
+        $this->prefixPath($newpath);
         $pathInfo = pathinfo($path);
         if ($pathInfo['dirname'] !== '.') {
             $pathRemote = $pathInfo['dirname'] . '/' . $pathInfo['filename'];
@@ -156,6 +166,8 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function copy($path, $newpath)
     {
+        $this->prefixPath($path);
+        $this->prefixPath($newpath);
         $newpath = $this->removeExtension($newpath);
         $result = Uploader::upload(
             $this->getUrl($path),
@@ -177,6 +189,7 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function delete($path)
     {
+        $this->prefixPath($path);
         $result = Uploader::destroy(
             $this->removeExtension($path),
             [
@@ -196,6 +209,7 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function deleteDir($dirname)
     {
+        $this->prefixPath($dirname);
         $this->api->delete_resources_by_prefix($dirname);
         return true;
     }
@@ -222,6 +236,7 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function has($path)
     {
+        $this->prefixPath($path);
         $url = $this->getUrl($path);
         if (empty($url)) {
             return false;
@@ -236,6 +251,7 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function read($path)
     {
+        $this->prefixPath($path);
         $url = $this->getUrl($path);
         if (empty($url)) {
             return false;
@@ -251,6 +267,7 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function readStream($path)
     {
+        $this->prefixPath($path);
         $url = $this->getUrl($path);
         if (empty($url)) {
             return false;
@@ -268,6 +285,7 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function listContents($directory = '', $hasRecursive = false)
     {
+        $this->prefixPath($directory);
         $resources = [];
 
         // get resources array
@@ -346,6 +364,7 @@ class CloudinaryAdapter implements AdapterInterface
      */
     protected function getResource($path)
     {
+        $this->prefixPath($path);
         return (array)$this->api->resource(
             $this->removeExtension($path),
             ['resource_type' => $this->getResourceType($path)]
@@ -400,6 +419,14 @@ class CloudinaryAdapter implements AdapterInterface
     {
         $size = $resource['bytes'];
         return compact('size');
+    }
+
+    /**
+     * @param $path
+     */
+    private function prefixPath(&$path)
+    {
+        $path = $this->basePath . '/' . $path;
     }
 
     /**

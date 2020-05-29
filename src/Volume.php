@@ -54,6 +54,11 @@ class Volume extends FlysystemVolume
     public $cloudName = '';
 
     /**
+     * @var string Base path to prefix all assets
+     */
+    public $basePath = '';
+
+    /**
      * @var bool Overwrite existing files on Cloudinary
      */
     public $overwrite = true;
@@ -138,6 +143,6 @@ class Volume extends FlysystemVolume
             'cloud_name' => Craft::parseEnv($this->cloudName),
         ];
 
-        return new CloudinaryAdapter($config);
+        return new CloudinaryAdapter($config, $this->basePath);
     }
 }
