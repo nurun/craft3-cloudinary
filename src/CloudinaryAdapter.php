@@ -166,7 +166,6 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function copy($path, $newpath)
     {
-        $this->prefixPath($path);
         $this->prefixPath($newpath);
         $newpath = $this->removeExtension($newpath);
         $result = Uploader::upload(
@@ -236,7 +235,6 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function has($path)
     {
-        $this->prefixPath($path);
         $url = $this->getUrl($path);
         if (empty($url)) {
             return false;
@@ -251,7 +249,6 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function read($path)
     {
-        $this->prefixPath($path);
         $url = $this->getUrl($path);
         if (empty($url)) {
             return false;
@@ -267,7 +264,6 @@ class CloudinaryAdapter implements AdapterInterface
      */
     public function readStream($path)
     {
-        $this->prefixPath($path);
         $url = $this->getUrl($path);
         if (empty($url)) {
             return false;
