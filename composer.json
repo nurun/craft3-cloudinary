@@ -1,5 +1,5 @@
 {
-  "name": "mutation/craft3-cloudinary",
+  "name": "nurun/craft3-cloudinary",
   "description": "Cloudinary integration for Craft CMS",
   "type": "craft-plugin",
   "keywords": [
@@ -12,8 +12,8 @@
   "license": "MIT",
   "authors": [
     {
-      "name": "Mutation Digitale - Original author Tim Kelty",
-      "homepage": "https://github.com/MutationDigitale"
+      "name": "Nurun - Original author Tim Kelty",
+      "homepage": "https://github.com/nurun"
     }
   ],
   "require": {
@@ -30,7 +30,7 @@
   "extra": {
     "name": "Cloudinary",
     "handle": "cloudinary",
-    "changelogUrl": "https://raw.githubusercontent.com/MutationDigitale/craft3-cloudinary/master/CHANGELOG.md",
-    "downloadUrl": "https://github.com/MutationDigitale/craft3-cloudinary/archive/master.zip"
+    "changelogUrl": "https://raw.githubusercontent.com/nurun/craft3-cloudinary/master/CHANGELOG.md",
+    "downloadUrl": "https://github.com/nurun/craft3-cloudinary/archive/master.zip"
   }
 }
