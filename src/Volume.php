@@ -143,6 +143,10 @@ class Volume extends FlysystemVolume
             'cloud_name' => Craft::parseEnv($this->cloudName),
         ];
 
-        return new CloudinaryAdapter($config, Craft::parseEnv($this->basePath));
+        $basePath = Craft::parseEnv($this->basePath);
+        if (substr($basePath, 0, 1) === '$' || substr($basePath, 0, 1) === '@') {
+            $basePath = '';
+        }
+        return new CloudinaryAdapter($config, $basePath);
     }
 }
