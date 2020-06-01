@@ -423,7 +423,7 @@ class CloudinaryAdapter implements AdapterInterface
      */
     private function prefixPath(&$path)
     {
-        $path = $this->basePath . '/' . $path;
+        $path = $this->basePath ? $this->basePath . '/' . $path : $path;
     }
 
     /**
