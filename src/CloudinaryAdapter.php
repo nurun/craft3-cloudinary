@@ -268,7 +268,8 @@ class CloudinaryAdapter implements AdapterInterface
         if (empty($url)) {
             return false;
         }
-        $stream = fopen($this->getUrl($path), 'rb');
+        $stream = tmpfile();
+        fwrite($stream, file_get_contents($url));
         return compact('stream', 'path');
     }
 
