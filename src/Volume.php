@@ -4,12 +4,7 @@ namespace craft\cloudinary;
 
 use Craft;
 use craft\base\FlysystemVolume;
-use craft\errors\VolumeException;
-use craft\errors\VolumeObjectExistsException;
-use craft\errors\VolumeObjectNotFoundException;
 use League\Flysystem\Config;
-use League\Flysystem\FileExistsException;
-use League\Flysystem\FileNotFoundException;
 use League\Flysystem\Filesystem;
 
 /**
@@ -72,9 +67,12 @@ class Volume extends FlysystemVolume
      */
     protected $foldersHaveTrailingSlashes = false;
 
+    /**
+     * @inheritdoc
+     * Always disable asserts by default
+     */
     protected function filesystem(array $config = ['disable_asserts' => true]): Filesystem
     {
-        // Constructing a Filesystem is super cheap and we always get the config we want, so no caching.
         return new Filesystem($this->adapter(), new Config($config));
     }
 
