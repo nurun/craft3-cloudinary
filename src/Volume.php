@@ -6,7 +6,11 @@ use Craft;
 use craft\base\FlysystemVolume;
 use craft\errors\VolumeException;
 use craft\errors\VolumeObjectExistsException;
+use craft\errors\VolumeObjectNotFoundException;
+use League\Flysystem\Config;
 use League\Flysystem\FileExistsException;
+use League\Flysystem\FileNotFoundException;
+use League\Flysystem\Filesystem;
 
 /**
  * Class Volume
@@ -68,25 +72,10 @@ class Volume extends FlysystemVolume
      */
     protected $foldersHaveTrailingSlashes = false;
 
-    // Public Methods
-    // =========================================================================
-
-    /**
-     * @inheritdoc
-     */
-    public function createFileByStream(string $path, $stream, array $config)
+    protected function filesystem(array $config = ['disable_asserts' => true]): Filesystem
     {
-        try {
-            $config = $this->addFileMetadataToConfig($config);
-            // Disable asserts to always overwrite files
-            $success = $this->filesystem(['disable_asserts' => true])->writeStream($path, $stream, $config);
-        } catch (FileExistsException $e) {
-            throw new VolumeObjectExistsException($e->getMessage(), 0, $e);
-        }
-
-        if (!$success) {
-            throw new VolumeException('Couldn’t create file at ' . $path);
-        }
+        // Constructing a Filesystem is super cheap and we always get the config we want, so no caching.
+        return new Filesystem($this->adapter(), new Config($config));
     }
 
     /**

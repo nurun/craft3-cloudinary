@@ -132,21 +132,11 @@ class CloudinaryAdapter implements AdapterInterface
     {
         $this->prefixPath($path);
         $this->prefixPath($newpath);
-        $pathInfo = pathinfo($path);
-        if ($pathInfo['dirname'] !== '.') {
-            $pathRemote = $pathInfo['dirname'] . '/' . $pathInfo['filename'];
-        } else {
-            $pathRemote = $pathInfo['filename'];
-        }
-        $newPathInfo = pathinfo($newpath);
-        if ($newPathInfo['dirname'] !== '.') {
-            $newPathRemote = $newPathInfo['dirname'] . '/' . $newPathInfo['filename'];
-        } else {
-            $newPathRemote = $newPathInfo['filename'];
-        }
+        $path = $this->removeExtension($path);
+        $newpath = $this->removeExtension($newpath);
         $result = Uploader::rename(
-            $pathRemote,
-            $newPathRemote,
+            $path,
+            $newpath,
             [
                 'resource_type' => $this->getResourceType($path),
                 'overwrite' => true,
@@ -154,7 +144,7 @@ class CloudinaryAdapter implements AdapterInterface
             ]
         );
         $result_filename = pathinfo($result['public_id'], PATHINFO_FILENAME);
-        return $result_filename === $newPathInfo['filename'];
+        return $result_filename === pathinfo($newpath, PATHINFO_FILENAME);
     }
 
     /**
