@@ -143,8 +143,7 @@ class CloudinaryAdapter implements AdapterInterface
                 'invalidate' => true
             ]
         );
-        $result_filename = pathinfo($result['public_id'], PATHINFO_FILENAME);
-        return $result_filename === pathinfo($newpath, PATHINFO_FILENAME);
+        return pathinfo($result['public_id'], PATHINFO_FILENAME) === pathinfo($newpath, PATHINFO_FILENAME);
     }
 
     /**
