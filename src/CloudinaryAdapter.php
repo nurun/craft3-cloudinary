@@ -143,8 +143,7 @@ class CloudinaryAdapter implements AdapterInterface
                 'invalidate' => true
             ]
         );
-        $result_filename = pathinfo($result['public_id'], PATHINFO_FILENAME);
-        return $result_filename === pathinfo($newpath, PATHINFO_FILENAME);
+        return pathinfo($result['public_id'], PATHINFO_FILENAME) === pathinfo($newpath, PATHINFO_FILENAME);
     }
 
     /**
@@ -538,7 +537,17 @@ class CloudinaryAdapter implements AdapterInterface
             "mxf",
             "ogv",
             "webm",
-            "wmv"
+            "wmv",
+            // Also audio because Cloudinary treats audio as video
+            "aac",
+            "aiff",
+            "amr",
+            "flac",
+            "m4a",
+            "mp3",
+            "ogg",
+            "opus",
+            "wav"
         ];
     }
 }
