@@ -537,7 +537,17 @@ class CloudinaryAdapter implements AdapterInterface
             "mxf",
             "ogv",
             "webm",
-            "wmv"
+            "wmv",
+            // Also audio because Cloudinary treats audio as video
+            "aac",
+            "aiff",
+            "amr",
+            "flac",
+            "m4a",
+            "mp3",
+            "ogg",
+            "opus",
+            "wav"
         ];
     }
 }
